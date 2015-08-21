@@ -3,7 +3,6 @@
 
 ## Creating matrix with cached inverse
 ## Assuming, that matrix is invertible
-
 makeCacheMatrix <- function(x = matrix()) {
   inv <- NULL
   set <- function(y) {
@@ -19,6 +18,9 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 ## Calculate or get cached inverse of matrix
 ## Assuming, that matrix is invertible
+## Usage:
+## cx <- makeCacheMatrix(m)
+## inv_x <- cacheSolve(cx)
 cacheSolve <- function(x, ...) {
   inv <- x$getsolve()
   if(!is.null(inv)){
@@ -28,4 +30,17 @@ cacheSolve <- function(x, ...) {
   inv <- solve(mat, ...)
   x$setsolve(inv)
   inv
+}
+
+##Теsting realization of cached matrix inverse by taking determinant of matrix product
+test <- function(){
+  matrices <- lapply(vector(length=1000),function(...){ 
+    x<- makeCacheMatrix(replicate(100,rnorm(100)))
+    cacheSolve(x)
+    x
+  })
+  all(vapply(matrices,function(x){
+    d <- det(cacheSolve(x)%*%x$get())
+    round(d) == 1
+  }, FUN.VALUE = logical(length = 1)))
 }
